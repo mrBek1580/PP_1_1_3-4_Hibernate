@@ -6,28 +6,23 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
     private final SessionFactory sessionFactory = Util.getConnection();
-    public UserDaoHibernateImpl() {
-
-    }
-
 
     @Override
     public void createUsersTable() {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            String sql = """
+        String sql = """
                     CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY ,
                     firstName VARCHAR(64),
                     lastName VARCHAR(64),
                     age INT)
                     """;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.createSQLQuery(sql).executeUpdate();
             transaction.commit();
             System.out.println("Таблица создана");
@@ -41,11 +36,11 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void dropUsersTable() {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            String sql = """
+        String sql = """
                     DROP TABLE IF EXISTS users
                     """;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.createSQLQuery(sql).executeUpdate();
             transaction.commit();
             System.out.println("Таблица удалена");
@@ -91,11 +86,11 @@ public class UserDaoHibernateImpl implements UserDao {
     public List<User> getAllUsers() {
         Transaction transaction = null;
         List<User> allUsers = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            String sql = """
+        String sql = """
                     SELECT * FROM users
                     """;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             allUsers = session.createSQLQuery(sql).addEntity(User.class).list();
             transaction.commit();
         } catch (HibernateException hibernateException) {
@@ -109,13 +104,14 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            String sql = """
+        String sql = """
                     DELETE FROM users
                     """;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.createNativeQuery(sql).executeUpdate();
             transaction.commit();
+            System.out.println("Таблица очищена");
         } catch (HibernateException hibernateException) {
             if (transaction != null) {
                 transaction.rollback();
